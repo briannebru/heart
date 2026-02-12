@@ -83,6 +83,17 @@ server <- function(input, output, session) {
     filtered_data()
   })
   
+  # Female stats
+  output$f_mortality <- renderText({
+    d <- filtered_data()[filtered_data()$SEX == "Female", ]
+    paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
+  })
+  # Male stats
+  output$m_mortality <- renderText({
+    d <- filtered_data()[filtered_data()$SEX == "Male", ]
+    paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)

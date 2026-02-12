@@ -11,6 +11,9 @@ ui <- page_sidebar(
     "Heart Attack Dashboard"
   ),
   theme = bs_theme(bootswatch = "pulse"),
+  #############################################
+  #side bar
+  #############################################
   sidebar = sidebar(
     selectInput(
       inputId = "outcome",
@@ -35,8 +38,17 @@ ui <- page_sidebar(
       min = min(heart$AGE),
       max = max(heart$AGE),
       value = c(min(heart$AGE), max(heart$AGE))
+    ),
+    actionButton(
+      inputId = "reset",
+      label = "Reset",
+      icon = bsicons::bs_icon("arrow-counterclockwise")
     )
   ),
+  #############################################
+  #tabs
+  #############################################  
+  
   navset_tab(
     nav_panel(
       "Overview", 
@@ -133,13 +145,22 @@ server <- function(input, output, session) {
     if(nrow(df) > 1000) {
       df <- df[sample(nrow(df), 1000), ]
     }
-    p <- ggplot(df, aes(x = AGE, y = LOS, color = SEX)) +
+    p <- ggplot(df, aes(x = AGE, y = CHARGES, color = SEX)) +
       geom_point(alpha = 0.3) +
-      labs(x = "Age", y = "Length of Stay (days)", color = "Sex") +
+      labs(x = "Age", y = "Charges", color = "Sex") +
       geom_smooth(method = "lm", se = FALSE) +
       theme_minimal()
     ggplotly(p)
   })
+  
+  observeEvent(input$reset, {
+    updateSelectInput(session, "outcome", selected = "All")
+    updateSelectInput(session, "diagnosis", selected = "All")
+    updateSelectInput(session, "drg", selected = "All")
+    updateSliderInput(session, "age_range",
+                      value = c(min(heart$AGE), max(heart$AGE)))
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)

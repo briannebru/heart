@@ -103,7 +103,11 @@ server <- function(input, output, session) {
     d <- filtered_data()[filtered_data()$SEX == "Male", ]
     paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
   })
-  
+  # overall stats
+  output$t_mortality <- renderText({
+    d <- filtered_data()
+    paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
+  })
 
   
   output$age_hist <- renderPlot({

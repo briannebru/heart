@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(DT)
+library(ggplot2)
 
 heart <- readRDS("data/heart.rds")
 ui <- page_sidebar(
@@ -98,6 +99,18 @@ server <- function(input, output, session) {
     paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
   })
   
+  output$age_hist <- renderPlot({
+    req(nrow(filtered_data()) >= 2)
+    ggplot(filtered_data(), aes(x = AGE, fill = DIED)) +
+      geom_density(alpha = 0.5) +
+      labs(x = "Age", y = "Density", fill = "DIED") +
+      facet_wrap(~ SEX) +
+      theme_minimal() +
+      theme(
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14)
+      )
+  })
 }
 
 shinyApp(ui = ui, server = server)

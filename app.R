@@ -52,6 +52,10 @@ ui <- page_sidebar(
         theme = "primary",
         showcase = bsicons::bs_icon("gender-male")
         )
+      ),
+      card(
+        card_header("Age Distribution"),
+        plotOutput("age_hist")
       )
     ),
     nav_panel("Explore", "Explore content coming soon..."),

@@ -40,7 +40,7 @@ ui <- page_sidebar(
     nav_panel(
       "Overview", 
       layout_column_wrap(
-      width = 1/2,
+      width = 1/3,
       value_box(
         title = "Female Mortality",
         value = textOutput("f_mortality"),
@@ -52,7 +52,12 @@ ui <- page_sidebar(
         value = textOutput("m_mortality"),
         theme = "primary",
         showcase = bsicons::bs_icon("gender-male")
-        )
+        ),
+      value_box(
+        title = "Overall Mortality",
+        value = textOutput("t_mortality"),
+        theme = "success"
+      )
       ),
       card(
         card_header("Age Distribution"),
@@ -98,6 +103,8 @@ server <- function(input, output, session) {
     d <- filtered_data()[filtered_data()$SEX == "Male", ]
     paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
   })
+  
+
   
   output$age_hist <- renderPlot({
     req(nrow(filtered_data()) >= 2)

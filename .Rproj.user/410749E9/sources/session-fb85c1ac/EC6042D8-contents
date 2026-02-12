@@ -83,7 +83,11 @@ ui <- page_sidebar(
     ),
     nav_panel(
       "Explore", 
-      plotlyOutput("scatter_plot")
+      card(
+        card_header("Age vs Length of Stay"),
+        plotlyOutput("scatter_plot"),
+        mod_download_plot_ui("dl_scatter", label = "Download")
+        )
       ),
     nav_panel(
       "Data", 

@@ -144,6 +144,9 @@ server <- function(input, output, session) {
     age_plot()
   })
   
+  mod_download_plot_server("dl_age", filename = "age_distribution", figure =
+                             age_plot)
+  
   output$scatter_plot <- renderPlotly({
     df <- filtered_data()
     req(nrow(df) >= 1)

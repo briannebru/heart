@@ -1,0 +1,27 @@
+{
+    "id": "06AEA459",
+    "path": "C:/Users/brian/OneDrive/Documents/Workshop/heart/.github/workflow/deploy-app.yaml",
+    "project_path": ".github/workflow/deploy-app.yaml",
+    "type": "yaml",
+    "hash": "4083120624",
+    "contents": "",
+    "dirty": false,
+    "created": 1770926755280.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "17,42",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1770926864,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1770926864420,
+    "read_only": false,
+    "read_only_alternatives": []
+}

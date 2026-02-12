@@ -1,0 +1,27 @@
+{
+    "id": "5ED7A13C",
+    "path": "~/Workshop/heart/R/prepare_data.R",
+    "project_path": "R/prepare_data.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1770908522481.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "17,32",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1770908554,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1770908554891,
+    "read_only": false,
+    "read_only_alternatives": []
+}

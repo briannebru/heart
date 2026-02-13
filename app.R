@@ -71,8 +71,14 @@ ui <- page_sidebar(
     nav_panel(
       "Overview", 
       layout_column_wrap(
-        width = 1/2,
+        width = 1/3,
        
+        value_box(
+          title = "Overall Mortality",
+          value = textOutput("overall_mortality"),
+          theme = "success",
+          showcase = bsicons::bs_icon("heart-pulse")
+        ),
         value_box(
           title = "Female Mortality",
           value = textOutput("f_mortality"),
@@ -221,6 +227,10 @@ server <- function(input, output, session) {
   
   output$m_mortality <- renderText({
     compute_mortality(filtered_data()[filtered_data()$SEX == "Male", ])
+  })
+
+  output$overall_mortality <- renderText({
+    compute_mortality(filtered_data())
   })
 
   # Female avg LOS

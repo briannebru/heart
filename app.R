@@ -154,6 +154,27 @@ ui <- page_sidebar(
         label = "Download Filtered Data"
       ),
       DT::dataTableOutput("data_table")
+    ),
+
+    nav_panel(
+      "About",
+      card(
+        card_header("About This Dashboard"),
+        tags$p(
+          "This dashboard explores outcomes, length of stay, and charges for",
+          "12,844 heart attack patients from New York State (1993)."
+        ),
+        tags$p(
+          "Key findings on why women may have higher mortality after heart attack:"
+        ),
+        tags$ul(
+          tags$li("Women often present at older ages and with more comorbidities."),
+          tags$li("Delays in seeking and receiving care can worsen outcomes."),
+          tags$li("Symptoms can be less classic, increasing under-recognition."),
+          tags$li("Underlying mechanisms can differ (e.g., non-obstructive disease)."),
+          tags$li("The mortality gap is often larger among younger women.")
+        )
+      )
     )
   )
 )

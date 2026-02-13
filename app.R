@@ -122,6 +122,30 @@ ui <- page_sidebar(
      ),
     
     nav_panel(
+      "Length of Stay",
+      layout_column_wrap(
+        width = 1/2,
+        value_box(
+          title = "Female Avg LOS",
+          value = textOutput("f_avg_los"),
+          theme = "danger",
+          showcase = bsicons::bs_icon("gender-female")
+        ),
+        value_box(
+          title = "Male Avg LOS",
+          value = textOutput("m_avg_los"),
+          theme = "primary",
+          showcase = bsicons::bs_icon("gender-male")
+        )
+      ),
+      card(
+        card_header("Length of Stay Distribution"),
+        plotOutput("los_density"),
+        mod_download_plot_ui("dl_los", label = "Download")
+      )
+    ),
+    
+    nav_panel(
       "Data", 
       # Add the download button
       downloadButton(
@@ -165,6 +189,22 @@ server <- function(input, output, session) {
   output$m_mortality <- renderText({
     compute_mortality(filtered_data()[filtered_data()$SEX == "Male", ])
   })
+
+  # Female avg LOS
+  
+  output$f_avg_los <- renderText({
+    df <- filtered_data()
+    x <- mean(df$LOS[df$SEX == "Female"], na.rm = TRUE)
+    paste0(format_num(x, digits = 1), " days")
+  })
+
+  # Male avg LOS
+  
+  output$m_avg_los <- renderText({
+    df <- filtered_data()
+    x <- mean(df$LOS[df$SEX == "Male"], na.rm = TRUE)
+    paste0(format_num(x, digits = 1), " days")
+  })
   
 # Create the age plot as a reactive (reusable)
   
@@ -188,6 +228,27 @@ server <- function(input, output, session) {
   })
 
   mod_download_plot_server("dl_age", filename = "age_distribution", figure = age_plot)
+
+  # Length of stay density plot
+  
+  los_plot <- reactive({
+    req(nrow(filtered_data()) >= 2)
+    ggplot(filtered_data(), aes(x = LOS, fill = DIED)) +
+      geom_density(alpha = 0.5) +
+      labs(x = "Length of Stay (days)", y = "Density", fill = "DIED") +
+      facet_wrap(~ SEX) +
+      theme_minimal() +
+      theme(
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14)
+      )
+  })
+  
+  output$los_density <- renderPlot({
+    los_plot()
+  })
+
+  mod_download_plot_server("dl_los", filename = "length_of_stay_distribution", figure = los_plot)
 
   output$scatter_plot <- renderPlotly({
     df <- filtered_data()

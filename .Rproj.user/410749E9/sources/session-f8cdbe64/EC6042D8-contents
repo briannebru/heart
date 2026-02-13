@@ -1,57 +1,34 @@
 library(shiny)
-
 library(bslib) # For theming with Bootstrap
-
 library(DT) # For rendering data tables
-
 library(ggplot2) # For plotting
-
 library(plotly) # For interactive plots
 
 
-
 source("R/helpers.R")
-
 source("R/mod_download_plot.R")
 
-
-
 heart <- readRDS("data/heart.rds")
-
-
 
 ui <- page_sidebar(
   
   title = tags$span(
-    
     tags$img(src = "logo.png", height = "30px", style = "margin-right: 10px; filter: invert(1);"),
-    
     "Heart Attack Dashboard"
-    
-  ),
+    ),
   
   theme = bs_theme(bootswatch = "pulse"),
   
   sidebar = sidebar(
-    
     selectInput(
-      
       inputId = "outcome",
-      
       label = "Outcome:",
-      
       choices = c("All", "Survived", "Died")
-      
-    ),
-    
+      ),
     selectInput(
-      
       inputId = "diagnosis",
-      
       label = "Diagnosis:",
-      
       choices = c("All", sort(unique(as.character(heart$DIAGNOSIS)))),
-      
       selected = "All"
       
     ),
@@ -103,18 +80,12 @@ ui <- page_sidebar(
   
   
   navset_tab(
-    
     nav_panel(
-      
       "Overview", 
-      
       layout_column_wrap(
-        
         width = 1/2,
-        
         value_box(
-          
-          title = "Female Mortality",
+         title = "Female Mortality",
           
           value = textOutput("f_mortality"),
           
@@ -189,40 +160,27 @@ ui <- page_sidebar(
           theme = "primary",
           
           showcase = bsicons::bs_icon("clock")
-          
         ),
-        
         value_box(
-          
           title = "Avg Cost per Day",
-          
           value = textOutput("cost_per_day"),
-          
           theme = "warning",
-          
           showcase = bsicons::bs_icon("receipt")
-          
         )
-        
+      ),
+      card(
+        card_header("Daily Charges by Sex and DRG"),
+        plotOutput("daily_charges_boxplot"),
+        mod_download_plot_ui("dl_daily_charges", label = "Download")
       )
-      
-    ),
-    
-    
+     ),
     
     nav_panel(
-      
       "Data", 
-      
       DT::dataTableOutput("data_table")
-      
     )
-    
   )
-  
 )
-
-
 
 server <- function(input, output, session) {
   

@@ -124,79 +124,46 @@ ui <- page_sidebar(
     ),
     
     nav_panel(
-      
       "Explore", 
-      
       plotlyOutput("scatter_plot")
-      
     ),
     
     nav_panel(
-      
       "Charges",
-      
       layout_column_wrap(
-        
         width = 1/3,
-        
         value_box(
-          
           title = "Avg Charges (per stay)",
-          
           value = textOutput("avg_charges"),
-          
           theme = "success",
-          
           showcase = bsicons::bs_icon("currency-dollar")
-          
         ),
-        
         value_box(
-          
           title = "Avg Length of Stay",
-          
           value = textOutput("avg_los"),
-          
           theme = "primary",
-          
           showcase = bsicons::bs_icon("clock")
-          
         ),
-        
         value_box(
-          
           title = "Avg Cost per Day",
-          
           value = textOutput("cost_per_day"),
-          
           theme = "warning",
-          
           showcase = bsicons::bs_icon("receipt")
-          
         )
-        
       ),
       card(
         card_header("Daily Charges by Sex and DRG"),
         plotOutput("daily_charges_boxplot"),
         mod_download_plot_ui("dl_daily_charges", label = "Download")
       )
-      
-    ),
+     ),
     
     nav_panel(
-      
       "Data", 
-      
       DT::dataTableOutput("data_table")
-      
     )
-    
   )
-  
 )
-
-
 
 server <- function(input, output, session) {
   
@@ -416,6 +383,41 @@ server <- function(input, output, session) {
     
   })
   
+  # ----------------- Daily Charges Boxplot -----------------
+  daily_charges_plot <- reactive({
+    df <- filtered_data()
+    
+    # Remove missing charges and LOS <= 0
+    df <- df[!is.na(df$CHARGES) & df$LOS > 0, ]
+    
+    # Require at least 2 rows to plot
+    req(nrow(df) >= 2)
+    
+    # Calculate cost per day
+    df$COST_PER_DAY <- df$CHARGES / df$LOS
+    
+    # Create the boxplot
+    ggplot(df, aes(x = SEX, y = COST_PER_DAY, fill = SEX)) +
+      geom_boxplot(alpha = 0.7, outlier.alpha = 0.5) +
+      facet_wrap(~ DRG, scales = "free_y") +
+      labs(
+        x = "Sex",
+        y = "Cost per Day ($)",
+        title = "Daily Charges by Sex and DRG"
+      ) +
+      theme_minimal() +
+      theme(
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12),
+        legend.position = "none"
+      )
+  })
+ 
+  output$daily_charges_boxplot <- renderPlot({
+    daily_charges_plot()
+  })
+  
+  mod_download_plot_server("dl_daily_charges", filename = "daily_charges", figure = daily_charges_plot)
   
   
   

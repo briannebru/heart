@@ -1,9 +1,9 @@
 {
     "id": "80D8855F",
-    "path": "C:/Users/brian/OneDrive/Documents/Workshop/heart/.github/workflows/deploy-app.yaml",
+    "path": "~/Workshop/heart/.github/workflows/deploy-app.yaml",
     "project_path": ".github/workflows/deploy-app.yaml",
     "type": "yaml",
-    "hash": "3720302856",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1770928000306.0,

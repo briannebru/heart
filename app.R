@@ -24,77 +24,53 @@ ui <- page_sidebar(
       inputId = "outcome",
       label = "Outcome:",
       choices = c("All", "Survived", "Died")
-      ),
+    ),
+    
     selectInput(
       inputId = "diagnosis",
       label = "Diagnosis:",
       choices = c("All", sort(unique(as.character(heart$DIAGNOSIS)))),
       selected = "All"
-      
     ),
     
     selectInput(
-      
       inputId = "drg",
-      
       label = "DRG:",
-      
       choices = c("All", sort(unique(as.character(heart$DRG)))),
-      
       selected = "All"
-      
     ),
     
     sliderInput(
-      
       inputId = "age_range",
-      
       label = "Age Range:",
-      
       min = min(heart$AGE),
-      
       max = max(heart$AGE),
-      
       value = c(min(heart$AGE), max(heart$AGE))
-      
     ),
     
     actionButton(
-      
       inputId = "reset",
-      
       label = "Reset",
-      
       icon = bsicons::bs_icon("arrow-counterclockwise")
-      
     )
-    
   ),
-  
-  
   
   #----------------------------------------------------------
   
   # tabs
   
-  
-  
   navset_tab(
+    
     nav_panel(
       "Overview", 
       layout_column_wrap(
         width = 1/2,
-        value_box(
-         title = "Female Mortality",
-          
+       value_box(
+          title = "Female Mortality",
           value = textOutput("f_mortality"),
-          
           theme = "danger",
-          
           showcase = bsicons::bs_icon("gender-female")
-          
         ),
-        
         value_box(
           
           title = "Male Mortality",
@@ -153,7 +129,7 @@ ui <- page_sidebar(
       ),
       card(
         card_header("Daily Charges by Sex and DRG"),
-        plotOutput("daily_charges_boxplot"),
+        plotlyOutput("daily_charges_boxplot"),
         mod_download_plot_ui("dl_daily_charges", label = "Download")
       )
      ),
@@ -383,21 +359,20 @@ server <- function(input, output, session) {
     
   })
   
-  # ----------------- Daily Charges Boxplot -----------------
-  daily_charges_plot <- reactive({
+  # ----------------- Server -----------------
+  output$daily_charges_boxplot <- renderPlotly({
     df <- filtered_data()
     
     # Remove missing charges and LOS <= 0
     df <- df[!is.na(df$CHARGES) & df$LOS > 0, ]
     
-    # Require at least 2 rows to plot
     req(nrow(df) >= 2)
     
     # Calculate cost per day
     df$COST_PER_DAY <- df$CHARGES / df$LOS
     
-    # Create the boxplot
-    ggplot(df, aes(x = SEX, y = COST_PER_DAY, fill = SEX)) +
+    # Create ggplot
+    p <- ggplot(df, aes(x = SEX, y = COST_PER_DAY, fill = SEX)) +
       geom_boxplot(alpha = 0.7, outlier.alpha = 0.5) +
       facet_wrap(~ DRG, scales = "free_y") +
       labs(
@@ -411,11 +386,10 @@ server <- function(input, output, session) {
         axis.text = element_text(size = 12),
         legend.position = "none"
       )
+    
+    ggplotly(p, tooltip = c("x", "y"))  # <- makes it interactive
   })
- 
-  output$daily_charges_boxplot <- renderPlot({
-    daily_charges_plot()
-  })
+  
   
   mod_download_plot_server("dl_daily_charges", filename = "daily_charges", figure = daily_charges_plot)
   

@@ -249,19 +249,18 @@ server <- function(input, output, session) {
   })
   
   # ----------------- Server -----------------
-  output$daily_charges_boxplot <- renderPlotly({
+  daily_charges_plot <- reactive({
     df <- filtered_data()
-    
+
     # Remove missing charges and LOS <= 0
     df <- df[!is.na(df$CHARGES) & df$LOS > 0, ]
-    
+
     req(nrow(df) >= 2)
-    
+
     # Calculate cost per day
     df$COST_PER_DAY <- df$CHARGES / df$LOS
-    
-    # Create ggplot
-    p <- ggplot(df, aes(x = SEX, y = COST_PER_DAY, fill = SEX)) +
+
+    ggplot(df, aes(x = SEX, y = COST_PER_DAY, fill = SEX)) +
       geom_boxplot(alpha = 0.7, outlier.alpha = 0.5) +
       facet_wrap(~ DRG, scales = "free_y") +
       labs(
@@ -275,8 +274,10 @@ server <- function(input, output, session) {
         axis.text = element_text(size = 12),
         legend.position = "none"
       )
-    
-    ggplotly(p, tooltip = c("x", "y"))  # <- makes it interactive
+  })
+
+  output$daily_charges_boxplot <- renderPlotly({
+    ggplotly(daily_charges_plot(), tooltip = c("x", "y")) # makes it interactive
   })
   
   mod_download_plot_server("dl_daily_charges", filename = "daily_charges", figure = daily_charges_plot)

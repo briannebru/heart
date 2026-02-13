@@ -88,7 +88,8 @@ ui <- page_sidebar(
     
     nav_panel(
       "Explore", 
-      plotlyOutput("scatter_plot")
+      plotlyOutput("scatter_plot"),
+      mod_download_plot_ui("dl_scatter", label = "Download")
     ),
     
     nav_panel(
@@ -250,22 +251,25 @@ server <- function(input, output, session) {
 
   mod_download_plot_server("dl_los", filename = "length_of_stay_distribution", figure = los_plot)
 
-  output$scatter_plot <- renderPlotly({
+  scatter_plot <- reactive({
     df <- filtered_data()
     req(nrow(df) >= 1)
-    if(nrow(df) > 1000) {
+    if (nrow(df) > 1000) {
       df <- df[sample(nrow(df), 1000), ]
     }
-    
-    p <- ggplot(df, aes(x = AGE, y = LOS, color = SEX)) +
+
+    ggplot(df, aes(x = AGE, y = LOS, color = SEX)) +
       geom_point(alpha = 0.3) +
       labs(x = "Age", y = "Length of Stay (days)", color = "Sex") +
       geom_smooth(method = "lm", se = FALSE) +
       theme_minimal()
-    
-    ggplotly(p)
-    
   })
+
+  output$scatter_plot <- renderPlotly({
+    ggplotly(scatter_plot())
+  })
+
+  mod_download_plot_server("dl_scatter", filename = "age_vs_los_scatter", figure = scatter_plot)
 
   observeEvent(input$reset, {
     updateSelectInput(session, "outcome", selected = "All")

@@ -3,6 +3,7 @@ library(bslib) # For theming with Bootstrap
 library(DT) # For rendering data tables
 library(ggplot2) # For plotting
 library(plotly) # For interactive plots
+library(scales) # For percent labels
 
 
 source("R/helpers.R")
@@ -47,6 +48,12 @@ ui <- page_sidebar(
       max = max(heart$AGE),
       value = c(min(heart$AGE), max(heart$AGE))
     ),
+
+    checkboxInput(
+      inputId = "use_filtered_for_mortality_plot",
+      label = "Use filters for mortality plot",
+      value = TRUE
+    ),
     
     actionButton(
       inputId = "reset",
@@ -84,6 +91,10 @@ ui <- page_sidebar(
         plotOutput("age_hist"),
         mod_download_plot_ui("dl_age", label = "Download")
       ),
+      card(
+        card_header("Outcome by Sex and Age Band"),
+        plotOutput("outcome_by_sex_age")
+      )
     ),
     
     nav_panel(
@@ -250,6 +261,51 @@ server <- function(input, output, session) {
   })
 
   mod_download_plot_server("dl_age", filename = "age_distribution", figure = age_plot)
+
+  outcome_by_sex_age_plot <- reactive({
+    df <- if (isTRUE(input$use_filtered_for_mortality_plot)) {
+      filtered_data()
+    } else {
+      heart
+    }
+    req(nrow(df) >= 2)
+
+    df$AGE_BAND <- cut(
+      df$AGE,
+      breaks = c(-Inf, 49, 64, 74, Inf),
+      labels = c("<50", "50-64", "65-74", "75+")
+    )
+
+    tab <- as.data.frame(table(AGE_BAND = df$AGE_BAND, SEX = df$SEX, DIED = df$DIED))
+    died <- tab[tab$DIED == "Died", c("AGE_BAND", "SEX", "Freq")]
+    total <- aggregate(Freq ~ AGE_BAND + SEX, data = tab, sum)
+    tab <- merge(died, total, by = c("AGE_BAND", "SEX"), suffixes = c("_DIED", "_TOTAL"))
+    tab$PCT <- tab$Freq_DIED / tab$Freq_TOTAL
+    tab$PCT_LABEL <- scales::percent(tab$PCT, accuracy = 1)
+
+    ggplot(tab, aes(x = SEX, y = PCT, fill = SEX)) +
+      geom_col(width = 0.7) +
+      geom_text(
+        aes(label = PCT_LABEL),
+        vjust = -0.2,
+        size = 3
+      ) +
+      facet_wrap(~ AGE_BAND) +
+      scale_y_continuous(labels = scales::percent_format(), limits = c(0, 1)) +
+      labs(
+        x = "Sex",
+        y = "Mortality Rate"
+      ) +
+      theme_minimal() +
+      theme(
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12)
+      )
+  })
+
+  output$outcome_by_sex_age <- renderPlot({
+    outcome_by_sex_age_plot()
+  })
 
   # Length of stay density plot
   

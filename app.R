@@ -281,6 +281,16 @@ server <- function(input, output, session) {
   
   mod_download_plot_server("dl_daily_charges", filename = "daily_charges", figure = daily_charges_plot)
 
+  output$download_filtered_data <- downloadHandler(
+    filename = function() {
+      paste0("heart_filtered_", Sys.Date(), ".csv")
+    },
+    content = function(file) {
+      df <- filtered_data()  # use your reactive filtered data
+      write.csv(df, file, row.names = FALSE)
+    }
+  )
+  
 }
 
 shinyApp(ui = ui, server = server)
